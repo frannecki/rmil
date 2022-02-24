@@ -9,8 +9,6 @@ import config
 from model import build_attn_mil
 from dataloader import get_bag_dataloaders, get_annotated_region_loader
 from utils import train_model, evaluate_model
-# from utils import train_model_on_annotated_regions
-# from utils import evaluate_model_on_annotated_regions
 from criterion import GradeLoss, GradedCrossEntropyLoss, FocalLoss
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -161,33 +159,6 @@ if __name__ == '__main__':
                 f"{args.annotated_regions_root_dir}/val",
                 args.image_crop_size, args.image_size,
                 transform_test, args.batch_size_region, args.workers)
-
-            # writer_region = log_function(f'{args.log_dir_region}',
-            #                              purge_step=0)
-            # for epoch in range(args.trained_epochs_region,
-            #                    args.epochs_region):
-            #     train_model_on_annotated_regions(args,
-            #                                      model,
-            #                                      criterion,
-            #                                      trainloader_anno,
-            #                                      valloader_anno,
-            #                                      optimizer,
-            #                                      transform,
-            #                                      transform_test,
-            #                                      epoch,
-            #                                      writer_region)
-            # ckpt_path = os.path.join(args.model_dir,
-            #                          f"{args.checkpoint_path}.pth")
-            # ckpt = torch.load(ckpt_path)
-            # model.load_state_dict(ckpt["model"])
-            # print("Accurary on annotated region val set:", ckpt.get("acc"))
-            # acc_region = evaluate_model_on_annotated_regions(
-            #     args, model, transform)
-            # print("Accurary on annotated region test set:", acc_region)
-            # acc, score = evaluate_model(args, model, testloader)
-            # print("Performance on test set: Accuracy {:.4f}, Score {:.4f}"
-            #       .format(acc, score))
-            # model.fine_tune()
         else:
             trainloader_anno, valloader_anno = None, None
 
@@ -220,10 +191,6 @@ if __name__ == '__main__':
         f"{args.annotated_regions_root_dir}/test",
         args.image_crop_size, args.image_size,
         transform_test, args.batch_size_region, args.workers)
-
-    # acc_region = evaluate_model_on_annotated_regions(args, model,
-    #                                                  testloader_anno)
-    # print("Accurary on annotated region test set:", acc_region)
     acc, score = evaluate_model(args, model, testloader)
     print("Performance on test set: Accuracy {:.4f}, Score {:.4f}"
           .format(acc, score))

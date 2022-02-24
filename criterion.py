@@ -51,7 +51,6 @@ class GradeLoss(nn.Module):
 
     def forward(self, logits, targets):
         probs = torch.sigmoid(logits).sum(1)
-        # probs = torch.sigmoid(logits).sum(1) * 3
         return torch.mean((probs - targets) ** 2)
 
 
