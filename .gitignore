@@ -1,0 +1,9 @@
+__pycache__/
+backup/
+*.pyc
+/log*
+/models*
+/ablation
+*.pth
+*.zip
+/.vscode
