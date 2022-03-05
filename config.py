@@ -1,27 +1,29 @@
-EPOCHS = 100
-TOPK = 50
-BATCH_SIZE = 16
-IMAGE_SIZE = 96
-IMAGE_CROP_SIZE = 96
+# model
 BACKBONE = "resnet18"
-
 AVGPOOL_SIZE = 1
 AVGPOOL_SIZE_ATTN = 1
-
-PAGE = 4
-SIZE = 48
-METR = "acc"
 ATTN = False
-TRAIN_TEST_SPLIT = "data/train_test_split.json"
-NUM_CLASSES = 4
+PRETRAIN = False
 OUT_FEATURES = 3
-# OUT_FEATURES = 1
-TRAIN_LABELS_CSV = "/guazai/drivendata/data/csv/train_labels.csv"
+
+# training
+EPOCHS = 100
+EPOCHS_SS = 50
+
+# evaluations
+METR = "acc"
+
+# dataloader
+TOPK = 100
+BATCH_SIZE = 16
+IMAGE_SIZE = 96
+SIZE = 48
+PAGE = 4
+IMAGE_CROP_SIZE = 96
+BATCH_SIZE_SS = 128
+
+NUM_CLASSES = 4
+TRAIN_TEST_SPLIT = "train_test_split.json"
+TRAIN_TEST_SPLIT_SS = "ss/train_test_split.json"
+TRAIN_LABELS_CSV = "/root/cjw/drivendata/data/csv/train_labels.csv"
 DATA_ROOT_DIR = f"/guazai/drivendata/tiledata/tiles/2nd_train/{SIZE}/{PAGE}"
-
-PRETRAIN = True
-EPOCHS_REGION = 50
-BATCH_SIZE_REGION = 128
-
-ANNOTATED_REGIONS_ROOT_DIR = ("/guazai/drivendata/"
-                              "annotated_regions_related_0316_p4")

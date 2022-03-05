@@ -184,8 +184,8 @@ class AttentionMIL(nn.Module):
 
 def build_attn_mil(args):
     r"""Attention MIL model builder"""
+    assert args.backbone in ['resnet18', 'resnet34', 'resnet50']
     backbone = ResnetBackbone(args.backbone, 3, args.pretrained)
-    # backbone = VGGBackbone(args.pretrained)
     if args.backbone == 'resnet50':
         backbone_out_features = 2048
     else:
@@ -196,5 +196,13 @@ def build_attn_mil(args):
             attn_features=64,
             backbone_out_features=backbone_out_features,
             avgpool_size=args.avgpool_size_attn)
-    return AttentionMIL(backbone, attn_block, args.avgpool_size,
-                        backbone_out_features, args.out_features)
+    model_attn_mil = AttentionMIL(backbone,
+                                  attn_block,
+                                  args.avgpool_size,
+                                  backbone_out_features,
+                                  args.out_features)
+    model_self_supervision = ResnetClassifier(backbone,
+                                              backbone_out_features,
+                                              args.avgpool_size,
+                                              args.out_features_ss)
+    return model_attn_mil, model_self_supervision
