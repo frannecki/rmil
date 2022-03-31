@@ -12,7 +12,7 @@ def eval_model(model, valloader):
     model.eval()
     correct, total = 0, 0
     with torch.no_grad():
-        for idx, (input, tgts) in enumerate(valloader):
+        for _, (input, tgts) in enumerate(valloader):
             input = input.to(device)
             tgts = tgts.to(device)
             outs = model(input)

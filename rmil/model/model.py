@@ -19,14 +19,14 @@ RESNET_BLOCKS = {
 }
 
 
-class ResnetClassifier(nn.Module):
-    r"""Vanilla Resnet classifier"""
+class Classifier(nn.Module):
+    r"""Vanilla DNN classifier"""
     def __init__(self,
                  backbone,
                  backbone_out_features,
                  avgpool_size,
                  out_features=4):
-        super(ResnetClassifier, self).__init__()
+        super(Classifier, self).__init__()
         self.feature_extractor = backbone
         self.mlp = MLP(avgpool_size=avgpool_size,
                        in_features=backbone_out_features,
@@ -182,27 +182,35 @@ class AttentionMIL(nn.Module):
             param.requires_grad = not tune
 
 
-def build_attn_mil(args):
-    r"""Attention MIL model builder"""
+def build_feature_backbone(args):
+    r"""Feature extractor backbone builder"""
     assert args.backbone in ['resnet18', 'resnet34', 'resnet50']
     backbone = ResnetBackbone(args.backbone, 3, args.pretrained)
     if args.backbone == 'resnet50':
         backbone_out_features = 2048
     else:
         backbone_out_features = 512
+    return backbone, backbone_out_features
+
+
+def build_attn_mil(args, backbone, backbone_out_features):
+    r"""Attention multiple instance learning model builder"""
     attn_block = None
     if args.attn:
         attn_block = GatedAttention(
             attn_features=64,
             backbone_out_features=backbone_out_features,
             avgpool_size=args.avgpool_size_attn)
-    model_attn_mil = AttentionMIL(backbone,
-                                  attn_block,
-                                  args.avgpool_size,
-                                  backbone_out_features,
-                                  args.out_features)
-    model_self_supervision = ResnetClassifier(backbone,
-                                              backbone_out_features,
-                                              args.avgpool_size,
-                                              args.out_features_ss)
-    return model_attn_mil, model_self_supervision
+    return AttentionMIL(backbone,
+                        attn_block,
+                        args.avgpool_size,
+                        backbone_out_features,
+                        args.out_features)
+
+
+def build_naive_model(args, backbone, backbone_out_features, out_features):
+    r"""Naive DNN model builder for image classification"""
+    return Classifier(backbone,
+                      backbone_out_features,
+                      args.avgpool_size,
+                      out_features)

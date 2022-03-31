@@ -1,12 +1,7 @@
-/tiles
-/backup
-/models
+models/
 logs/
-/preprocess
 __pycache__/
 .vscode/
 .ipynb_checkpoints/
 *.json
-*.pyc
 *.pth
-train.sh
