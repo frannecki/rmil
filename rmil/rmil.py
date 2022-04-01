@@ -22,81 +22,87 @@ from .ssl_ import config as config_ssl
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-parser = argparse.ArgumentParser(description='MIL')
-# data
-parser.add_argument('--data_root_dir', type=str, default=config.DATA_ROOT_DIR,
-                    help='root directory of tiles cropped from wsi')
-parser.add_argument('--train_labels_csv', type=str,
-                    default=config.TRAIN_LABELS_CSV,
-                    help='filepath of train labels (csv)')
-parser.add_argument('--split_path', type=str, default=config.TRAIN_TEST_SPLIT,
-                    help='train/val/test split result path (json)')
-parser.add_argument('--split_path_ss', type=str,
-                    default=config_ssl.META_DATA_PATH,
-                    help='train/val split json path for '
-                         'self supervised learning')
-parser.add_argument('--split_path_aux', type=str,
-                    default=config.TRAIN_TEST_SPLIT_AUX,
-                    help='train/val split json path for supervised learning')
-parser.add_argument('--batch_size', type=int, default=config.BATCH_SIZE,
-                    help='mini batch size')
-parser.add_argument('--batch_size_ss', type=int,
-                    default=config_ssl.BATCH_SIZE,
-                    help='mini batch size for self supervised learning')
-parser.add_argument('--batch_size_aux', type=int,
-                    default=config.BATCH_SIZE_AUX,
-                    help='mini batch size for supervised learning')
-parser.add_argument('--image_crop_size', type=int,
-                    default=config.IMAGE_CROP_SIZE,
-                    help='size to center crop images for self '
-                         'supervised learning')
-parser.add_argument('--image_size', type=int, default=config.IMAGE_SIZE,
-                    help='size to resize image to')
-# model
-parser.add_argument('--backbone', type=str, default=config.BACKBONE,
-                    help='backbone (resnet18/resnet34/resnet50)')
-parser.add_argument('--avgpool_size', type=int, default=config.AVGPOOL_SIZE,
-                    help='average pooling size for resnet classifier')
-parser.add_argument('--avgpool_size_attn', type=int,
-                    default=config.AVGPOOL_SIZE_ATTN,
-                    help='average pooling size for attention block')
-parser.add_argument('--num_classes', type=int, default=config.NUM_CLASSES,
-                    help='number of classes')
-parser.add_argument('--out_features', type=int, default=config.OUT_FEATURES,
-                    help='output feature dimension of network')
-parser.add_argument('--criterion', type=str, default="graded",
-                    help='loss function for multiple instance learning')
-parser.add_argument('--attn', action='store_true')
-# pipeline
-parser.add_argument('--trained_epochs', type=int, default=0,
-                    help='number of trained epochs')
-parser.add_argument('--epochs', type=int, default=config.EPOCHS,
-                    help='number of epochs')
-parser.add_argument('--workers', type=int, default=4,
-                    help='number of data loading workers (default: 4)')
-parser.add_argument('--topk', type=int, default=config.TOPK,
-                    help='how many top k tiles to consider (default: 10)')
-parser.add_argument('--checkpoint_path', type=str, default='checkpoint',
-                    help='checkpoint name prefix')
-parser.add_argument("--metr", type=str, default=config.METR,
-                    help='metric based on which to load pretrained model. '
-                         'Empty for accuracy. `score` for score')
-parser.add_argument('--save_step', type=int, default=10,
-                    help='number of steps to save model')
-parser.add_argument('--log_step', type=int, default=50,
-                    help='number of batches to show log')
-parser.add_argument('--model_dir', type=str, default='./models/models')
-parser.add_argument('--log_dir', type=str, default='./logs/logs')
-parser.add_argument('--log_dir_ss', type=str, default='./logs/logs_ss')
-parser.add_argument('--pretrained', action='store_true')
-parser.add_argument('--aux', action='store_true',
-                    help="Train with supervised learning task with auxiliary"
-                    " dataset (annotated patches)")
-parser.add_argument('--reg', action='store_true',
-                    help="Use auxiliary dataset with registration")
-parser.add_argument('--ssl', action='store_true',
-                    help="Train with self supervised learning task")
-parser.add_argument('--testonly', action='store_true')
+def get_options():
+    parser = argparse.ArgumentParser(description='MIL')
+    # data
+    parser.add_argument('--data_root_dir', type=str,
+                        default=config.DATA_ROOT_DIR,
+                        help='root directory of tiles cropped from wsi')
+    parser.add_argument('--train_labels_csv', type=str,
+                        default=config.TRAIN_LABELS_CSV,
+                        help='filepath of train labels (csv)')
+    parser.add_argument('--split_path', type=str,
+                        default=config.TRAIN_TEST_SPLIT,
+                        help='train/val/test split result path (json)')
+    parser.add_argument('--split_path_ssl', type=str,
+                        default=config_ssl.META_DATA_PATH,
+                        help='train/val split json path for '
+                             'self supervised learning')
+    parser.add_argument('--split_path_aux', type=str,
+                        default=config.TRAIN_TEST_SPLIT_AUX,
+                        help='train/val split json path for '
+                             'supervised learning')
+    parser.add_argument('--batch_size', type=int, default=config.BATCH_SIZE,
+                        help='mini batch size')
+    parser.add_argument('--batch_size_ssl', type=int,
+                        default=config_ssl.BATCH_SIZE,
+                        help='mini batch size for self supervised learning')
+    parser.add_argument('--batch_size_aux', type=int,
+                        default=config.BATCH_SIZE_AUX,
+                        help='mini batch size for supervised learning')
+    parser.add_argument('--image_crop_size', type=int,
+                        default=config.IMAGE_CROP_SIZE,
+                        help='size to center crop images for self '
+                             'supervised learning')
+    parser.add_argument('--image_size', type=int, default=config.IMAGE_SIZE,
+                        help='size to resize image to')
+    # model
+    parser.add_argument('--backbone', type=str, default=config.BACKBONE,
+                        help='backbone (resnet18/resnet34/resnet50)')
+    parser.add_argument('--avgpool_size', type=int,
+                        default=config.AVGPOOL_SIZE,
+                        help='average pooling size for resnet classifier')
+    parser.add_argument('--avgpool_size_attn', type=int,
+                        default=config.AVGPOOL_SIZE_ATTN,
+                        help='average pooling size for attention block')
+    parser.add_argument('--num_classes', type=int, default=config.NUM_CLASSES,
+                        help='number of classes')
+    parser.add_argument('--out_features', type=int,
+                        default=config.OUT_FEATURES,
+                        help='output feature dimension of network')
+    parser.add_argument('--criterion', type=str, default="graded",
+                        help='loss function for multiple instance learning')
+    parser.add_argument('--attn', action='store_true')
+    # pipeline
+    parser.add_argument('--trained_epochs', type=int, default=0,
+                        help='number of trained epochs')
+    parser.add_argument('--epochs', type=int, default=config.EPOCHS,
+                        help='number of epochs')
+    parser.add_argument('--workers', type=int, default=4,
+                        help='number of data loading workers (default: 4)')
+    parser.add_argument('--topk', type=int, default=config.TOPK,
+                        help='how many top k tiles to consider (default: 10)')
+    parser.add_argument('--checkpoint_path', type=str, default='checkpoint',
+                        help='checkpoint name prefix')
+    parser.add_argument("--metr", type=str, default=config.METR,
+                        help='metric based on which to load pretrained model. '
+                             'Empty for accuracy. `score` for score')
+    parser.add_argument('--save_step', type=int, default=10,
+                        help='number of steps to save model')
+    parser.add_argument('--log_step', type=int, default=50,
+                        help='number of batches to show log')
+    parser.add_argument('--model_dir', type=str, default='./models/models')
+    parser.add_argument('--log_dir', type=str, default='./logs/logs')
+    parser.add_argument('--pretrained', action='store_true')
+    parser.add_argument('--aux', action='store_true',
+                        help="Train with supervised learning task with"
+                        " auxiliary dataset (annotated patches)")
+    parser.add_argument('--reg', action='store_true',
+                        help="Use auxiliary dataset with registration")
+    parser.add_argument('--ssl', action='store_true',
+                        help="Train with self supervised learning task")
+    parser.add_argument('--testonly', action='store_true')
+    return parser.parse_args()
 
 
 def get_transforms(args):
@@ -130,8 +136,8 @@ def get_mil_data(args, transform_train, transform_test):
 
 def get_ssl_data(args, transform_train, transform_test):
     trainloader, valloader = get_ssl_data_loaders(
-        args.split_path_ss, transform_train, transform_test,
-        args.image_crop_size, batch_size=args.batch_size_ss)
+        args.split_path_ssl, transform_train, transform_test,
+        args.image_crop_size, batch_size=args.batch_size_ssl)
     return trainloader, valloader
 
 
@@ -251,21 +257,3 @@ def main(args, dataloaders_mil, dataloaders_aux=None, dataloaders_ssl=None):
     acc, score = evaluate_model(args, model, testloader)
     print("Performance on test set: Accuracy {:.4f}, Score {:.4f}"
           .format(acc, score))
-
-
-if __name__ == '__main__':
-    args = parser.parse_args()
-    print(args)
-
-    #########################################
-    # data
-    transform_train, transform_test = get_transforms(args)
-    dataloaders_mil = get_mil_data(args, transform_train, transform_test)
-
-    dataloaders_aux, dataloaders_ssl = None, None
-    if args.aux or args.reg:
-        dataloaders_ssl = get_aux_data(args, transform_train, transform_test)
-    if args.ssl:
-        dataloaders_aux = get_ssl_data(args, transform_train, transform_test)
-
-    main(args, dataloaders_mil, dataloaders_aux, dataloaders_ssl)

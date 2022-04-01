@@ -3,8 +3,7 @@ import torch
 import torch.utils.data as data
 import PIL.Image as Image
 
-from rmil.rmil import main, get_transforms
-from rmil.rmil import parser
+from rmil.rmil import main, get_transforms, get_options
 from rmil.dataloader import LabeledDataset, get_labeled_data_loaders
 
 
@@ -66,7 +65,7 @@ def get_bag_dataloaders(meta_data, transform, transform_test,
 
 
 if __name__ == '__main__':
-    args = parser.parse_args()
+    args = get_options()
     print(args)
     transform_train, transform_test = get_transforms(args)
     dataloader_mil = get_bag_dataloaders(METADATA_MIL, transform_train,
