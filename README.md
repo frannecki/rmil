@@ -7,6 +7,8 @@ learning on small dataset and self-supervised learning for auxiliary tasks
 ### Dataset Preparation
 #### Multiple instance learning
 ```sh
+# The dataset for multiple instance learning is organized in bags.
+# Each bag includes a group of patches from a single whole slide image
 python preprocess/dataset_split_mil.py
 ```
 
