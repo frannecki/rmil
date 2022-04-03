@@ -2,12 +2,14 @@ import os
 import os.path as osp
 import json
 import argparse
-from typing import List, Dict
-from rmil import config
+from typing import Dict
 from sklearn.model_selection import train_test_split
 
+import sys
+sys.path.append("./")
+from rmil import config
 
-def dataset_split(data_root_dir: str) -> Dict[List]:
+def dataset_split(data_root_dir: str) -> Dict:
     """Example dataset structure"""
     # $data_root_dir
     # ├── 0
@@ -19,7 +21,7 @@ def dataset_split(data_root_dir: str) -> Dict[List]:
         category_dir = osp.join(data_root_dir, f"{category}")
         images = [
             {
-                "filepath": osp.join(category, filename),
+                "filepath": osp.join(category_dir, filename),
                 "label": category
             } for filename in os.listdir(category_dir)]
         train, val = train_test_split(images, test_size=.2)
@@ -39,6 +41,6 @@ parser.add_argument("--output_path", type=str,
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    split = dataset_split(args.train_labels_csv)
+    split = dataset_split(args.data_root_dir)
     with open(args.output_path, 'w') as f:
         json.dump(split, f)

@@ -9,21 +9,6 @@ import torch.utils.data as data
 from typing import List, Dict, Tuple
 
 
-def get_train_data(split_path: str) -> Tuple[List[Dict]]:
-    r"""Load train/val/test split result
-
-    Args:
-        split_path: path to the json file containing
-            train/val/test data directories
-    """
-    with open(split_path, 'r') as f:
-        data = json.load(f)
-    train_slides = data["train"]
-    val_slides = data["val"]
-    test_slides = data["test"]
-    return train_slides, val_slides, test_slides
-
-
 def get_train_data_tiles(split_path: str) -> Tuple[List[Dict]]:
     r"""Load train/val/test split result
 
@@ -51,20 +36,19 @@ class MILBagDataset(data.Dataset):
             slides: metadata of the whole slide images for training
         """
         super(MILBagDataset, self).__init__()
-        self.data_root_dir = data_root_dir
-        self.transform = transform
-        self.cat = cat
-        self.topk = topk
-        self.labels = []
-        self.tiles = []
+        self.cat, self.topk, self.transform = cat, topk, transform
+        self.data_root_dir, self.labels, self.tiles = data_root_dir, [], []
         for slide in tqdm(slides):
             filename_tiles = os.listdir(osp.join(data_root_dir, slide["id"]))
-            filename_tiles = sorted(filename_tiles,
-                                    key=lambda x: int(x.split('_')[0]))
+            filename_tiles = sorted(
+                filename_tiles,
+                key=lambda x: int(x.split('_')[-1].split('.')[0]))
             filename_tiles = filename_tiles[:self.topk]
             filenames = copy.deepcopy(filename_tiles)
             while len(filenames) < self.topk:
                 filenames.extend(filename_tiles[:(self.topk - len(filenames))])
+            filenames = [osp.join(data_root_dir, slide["id"], filename)
+                         for filename in filenames]
             self.tiles.append(filenames)
             self.labels.append(slide['label'])
 
@@ -76,10 +60,10 @@ class MILBagDataset(data.Dataset):
             image = self.transform(image)
             images.append(image)
         if self.cat:
-            img = torch.cat(images, dim=0)
+            group = torch.cat(images, dim=0)
         else:
-            img = torch.stack(images, dim=0)
-        return img, self.labels[idx]
+            group = torch.stack(images, dim=0)
+        return group, self.labels[idx]
 
     def __len__(self):
         return len(self.labels)

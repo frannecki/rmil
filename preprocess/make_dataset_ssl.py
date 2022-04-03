@@ -5,6 +5,8 @@ import argparse
 import random
 from sklearn.model_selection import train_test_split
 
+import sys
+sys.path.append("./")
 from rmil.ssl_ import config
 
 parser = argparse.ArgumentParser()
@@ -20,7 +22,7 @@ if __name__ == '__main__':
     filenames = random.sample(filenames, int(len(filenames) * 0.5))
     filepaths = [osp.join(args.data_root_dir, filename)
                  for filename in filenames]
-    transform_ids = [random.randint(0, len(config.IMAGE_SIZES-1))
+    transform_ids = [random.randint(0, len(config.IMAGE_SIZES) - 1)
                      for _ in range(len(filenames))]
     data = [{"filepath": filepath, "label": tfm_id} for
             filepath, tfm_id in zip(filepaths, transform_ids)]

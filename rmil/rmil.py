@@ -129,8 +129,7 @@ def get_transforms(args):
 def get_mil_data(args, transform_train, transform_test):
     trainloader, valloader, testloader = get_bag_dataloaders(
         args.data_root_dir, args.split_path, args.topk,
-        args.image_crop_size, transform_train, transform_test,
-        args.batch_size, args.workers)
+        transform_train, transform_test, args.batch_size, args.workers)
     return trainloader, valloader, testloader
 
 
