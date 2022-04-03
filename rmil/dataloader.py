@@ -1,4 +1,5 @@
-import glob
+import os
+import os.path as osp
 import json
 import copy
 import torch
@@ -12,8 +13,8 @@ def get_train_data(split_path: str) -> Tuple[List[Dict]]:
     r"""Load train/val/test split result
 
     Args:
-        split_path: path to the json file containing train/val/test
-            data directories
+        split_path: path to the json file containing
+            train/val/test data directories
     """
     with open(split_path, 'r') as f:
         data = json.load(f)
@@ -41,8 +42,8 @@ def get_train_data_tiles(split_path: str) -> Tuple[List[Dict]]:
 class MILBagDataset(data.Dataset):
     r"""Bag dataset for multiple-instance learning
     """
-    def __init__(self, data_root_dir, slides, topk,
-                 transform, image_size=256, cat=False):
+    def __init__(self, data_root_dir, slides,
+                 topk, transform, cat=False):
         r"""Constructor for MILBagDataset
 
         Args:
@@ -52,29 +53,24 @@ class MILBagDataset(data.Dataset):
         super(MILBagDataset, self).__init__()
         self.data_root_dir = data_root_dir
         self.transform = transform
-        self.image_size = (image_size, image_size)
         self.cat = cat
         self.topk = topk
         self.labels = []
-        self.tiles_for_slides = []
+        self.tiles = []
         for slide in tqdm(slides):
-            filename_tiles = glob.glob(
-                f"{self.data_root_dir}/{slide['id']}_*.jpeg")
-            filename_tiles = sorted(
-                filename_tiles,
-                key=lambda x: int(x.split('_')[-1].split('.')[0]))[:self.topk]
-            if(isinstance(filename_tiles[0], list)):
-                break
+            filename_tiles = os.listdir(osp.join(data_root_dir, slide["id"]))
+            filename_tiles = sorted(filename_tiles,
+                                    key=lambda x: int(x.split('_')[0]))
+            filename_tiles = filename_tiles[:self.topk]
             filenames = copy.deepcopy(filename_tiles)
             while len(filenames) < self.topk:
-                filenames.extend(filename_tiles[:(self.topk-len(filenames))])
-            filenames = filenames[:self.topk]
-            self.tiles_for_slides.append(filenames)
+                filenames.extend(filename_tiles[:(self.topk - len(filenames))])
+            self.tiles.append(filenames)
             self.labels.append(slide['label'])
 
     def __getitem__(self, idx):
         images = []
-        filenames = self.tiles_for_slides[idx]
+        filenames = self.tiles[idx]
         for filepath in filenames:
             image = Image.open(filepath)
             image = self.transform(image)

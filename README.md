@@ -1,5 +1,5 @@
 # Multiple Instance Learning for cervical biopsy cancer grading
-
+## Summary
 This repo combines multiple instance learning on bags, supervised 
 learning on small dataset and self-supervised learning for auxiliary tasks
 
@@ -26,11 +26,16 @@ python preprocess/dataset_split_aux.py --data_root_dir=$data_root_dir_aux
 
 #### self-supervised learning
 ```sh
-# Assuming the images are in the folder $data_root_dir_ssl, in default `data/ssl` 
+# Assuming the images are in the folder $data_root_dir_ssl (`data/ssl` in default)
 python preprocess/dataset_generation_ssl.py --data_root_dir=$data_root_dir_ssl
 ```
 
-### Training
+### Training and testing
+Please use `python main.py -h` to view usages.
 ```sh
-python main.py [--aux --split_path_aux data/train_test_split_aux.json] [--ssl --split_path_ssl data/train_test_split_ssl.json]
+# For training
+python main.py --model_dir=models/models --log_dir=logs/logs --attn [--aux --split_path_aux data/train_test_split_aux.json] [--ssl --split_path_ssl data/train_test_split_ssl.json] | tee -a logs/logs.log
+
+# For testing, specify `--testonly` to skip training
+python main.py --model_dir=models/models --attn --testonly
 ```

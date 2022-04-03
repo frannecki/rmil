@@ -93,7 +93,7 @@ def get_options():
                         help='number of batches to show log')
     parser.add_argument('--model_dir', type=str, default='./models/models')
     parser.add_argument('--log_dir', type=str, default='./logs/logs')
-    parser.add_argument('--pretrained', action='store_true')
+    parser.add_argument('--no-pretrained', dest='pretrained', action='store_false')
     parser.add_argument('--aux', action='store_true',
                         help="Train with supervised learning task with"
                         " auxiliary dataset (annotated patches)")

@@ -25,5 +25,5 @@ BATCH_SIZE_AUX = 32
 TRAIN_TEST_SPLIT = "data/train_test_split.json"
 TRAIN_TEST_SPLIT_AUX = "data/train_test_split_aux.json"
 
-TRAIN_LABELS_CSV = "../data/mil/csv/train_labels.csv"
+TRAIN_LABELS_CSV = "../data/train_labels.csv"
 DATA_ROOT_DIR = f"../data/mil/tiles/{SIZE}/{PAGE}"
