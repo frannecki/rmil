@@ -19,6 +19,10 @@ from .ssl_ import build_ssl_model
 from .ssl_ import get_ssl_data_loaders
 from .ssl_ import config as config_ssl
 
+from .da import build_da_model
+from .da import get_da_data_loaders
+from .da import config as config_da
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -38,6 +42,10 @@ def get_options():
                         default=config_ssl.META_DATA_PATH,
                         help='train/val split json path for '
                              'self supervised learning')
+    parser.add_argument('--split_path_da', type=str,
+                        default=config_da.META_DATA_PATH,
+                        help='train/val split json path for '
+                             'domain adversarial training')
     parser.add_argument('--split_path_aux', type=str,
                         default=config.TRAIN_TEST_SPLIT_AUX,
                         help='train/val split json path for '
@@ -47,6 +55,9 @@ def get_options():
     parser.add_argument('--batch_size_ssl', type=int,
                         default=config_ssl.BATCH_SIZE,
                         help='mini batch size for self supervised learning')
+    parser.add_argument('--batch_size_da', type=int,
+                        default=config_da.BATCH_SIZE,
+                        help='mini batch size for domain adversial training')
     parser.add_argument('--batch_size_aux', type=int,
                         default=config.BATCH_SIZE_AUX,
                         help='mini batch size for supervised learning')
@@ -148,6 +159,13 @@ def get_ssl_data(args, transform_train, transform_test):
     return trainloader, valloader
 
 
+def get_da_data(args, transform_train, transform_test):
+    trainloader, valloader = get_da_data_loaders(
+        args.split_path_da, transform_train, transform_test,
+        batch_size=args.batch_size_da)
+    return trainloader, valloader
+
+
 def get_aux_data(args, transform_train, transform_test):
     with open(args.split_path_aux, "r") as f:
         meta_data = json.load(f)
@@ -156,7 +174,8 @@ def get_aux_data(args, transform_train, transform_test):
     return trainloader, valloader
 
 
-def main(args, dataloaders_mil, dataloaders_aux=None, dataloaders_ssl=None):
+def main(args, dataloaders_mil, dataloaders_aux=None,
+         dataloaders_ssl=None, dataloaders_da=None):
     if not os.path.exists(args.model_dir):
         os.makedirs(args.model_dir)
     if not os.path.exists(args.log_dir):
@@ -231,6 +250,21 @@ def main(args, dataloaders_mil, dataloaders_aux=None, dataloaders_ssl=None):
                 "trainloader": trainloader_ssl,
                 "valloader": valloader_ssl,
                 "criterion": criterion_ssl
+            })
+        if dataloaders_da:
+            # self-supervised learning subtask
+            model_da = build_da_model(args, backbone, backbone_out_features)
+            model_da = model_da.to(device)
+            trainloader_da, valloader_da = dataloaders_da
+            criterion_da = torch.nn.CrossEntropyLoss()
+            print("Number of training and testing batches for self-supervised "
+                  "learning", len(trainloader_da), len(valloader_da))
+            subtasks.append({
+                "task": "da",
+                "model": model_da,
+                "trainloader": trainloader_da,
+                "valloader": valloader_da,
+                "criterion": criterion_da
             })
 
         # train

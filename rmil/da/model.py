@@ -1,4 +1,5 @@
 import torch
+from . import config
 from ..model import Classifier
 
 
@@ -13,6 +14,14 @@ class GradientReverse(torch.autograd.Function):
 
 
 class DomainClassifier(Classifier):
+    def __init__(self,
+                 backbone,
+                 backbone_out_features,
+                 avgpool_size):
+        super(DomainClassifier, self).__init__(
+            backbone, backbone_out_features, avgpool_size,
+            *config.HIDDEN_FEATURES, 2)
+
     def forward(self, x):
         x = self.feature_extractor(x)
         x = GradientReverse.apply(x)

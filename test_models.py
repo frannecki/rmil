@@ -32,6 +32,11 @@ METADATA_SSL = {
     "val": generate_random_metadata("test/image.jpeg", 20, 5),
 }
 
+METADATA_DA = {
+    "train": generate_random_metadata("test/image.jpeg", 80, 2),
+    "val": generate_random_metadata("test/image.jpeg", 20, 2),
+}
+
 
 class MILBagDatasetMock(LabeledDataset):
     r"""Mocked bag dataset for multiple-instance learning
@@ -75,4 +80,7 @@ if __name__ == '__main__':
                                                transform_test, 4, 4)
     dataloaders_ssl = get_labeled_data_loaders(METADATA_SSL, transform_train,
                                                transform_test, 4, 4)
-    main(args, dataloader_mil, dataloaders_aux, dataloaders_ssl)
+    dataloaders_da = get_labeled_data_loaders(METADATA_DA, transform_train,
+                                              transform_test, 4, 4)
+    main(args, dataloader_mil, dataloaders_aux,
+         dataloaders_ssl, dataloaders_da)

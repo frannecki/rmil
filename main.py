@@ -1,5 +1,7 @@
-from rmil.rmil import main, get_transforms, get_options
-from rmil.rmil import get_mil_data, get_aux_data, get_ssl_data
+from rmil.rmil import (
+    main, get_transforms, get_options, get_mil_data,
+    get_aux_data, get_ssl_data, get_da_data
+)
 
 
 if __name__ == '__main__':
@@ -16,5 +18,8 @@ if __name__ == '__main__':
         dataloaders_aux = get_aux_data(args, transform_train, transform_test)
     if args.ssl:
         dataloaders_ssl = get_ssl_data(args, transform_train, transform_test)
+    if args.da:
+        dataloaders_da = get_da_data(args, transform_train, transform_test)
 
-    main(args, dataloaders_mil, dataloaders_aux, dataloaders_ssl)
+    main(args, dataloaders_mil, dataloaders_aux,
+         dataloaders_ssl, dataloaders_da)
