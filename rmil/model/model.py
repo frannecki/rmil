@@ -28,9 +28,7 @@ class Classifier(nn.Module):
                  out_features=4):
         super(Classifier, self).__init__()
         self.feature_extractor = backbone
-        self.mlp = MLP(avgpool_size=avgpool_size,
-                       in_features=backbone_out_features,
-                       out_features=out_features)
+        self.mlp = MLP(avgpool_size, backbone_out_features, out_features)
 
     def forward(self, x):
         x = self.feature_extractor(x)
@@ -72,24 +70,29 @@ class VGGBackbone(nn.Module):
 class MLP(nn.Module):
     r"""Multiple-layer perceptron (MLP) Classifier
     that accepts feature maps and returns probs"""
-    def __init__(self, avgpool_size, in_features, out_features):
+    def __init__(self, avgpool_size, in_feature: int, *out_features):
         r"""MLP classifier constructor
 
         Args:
             avgpool_size: output size of average pooling size
-            in_features: dimension of the feature vector accepted
+            in_feature: dimension of the feature vector accepted
                 by fully connected layer
-            out_features: dimension of the feature vector output
+            out_features: dimensions of the feature vector outputs
         """
         super(MLP, self).__init__()
         self.avgpool = nn.AdaptiveAvgPool2d(avgpool_size)
-        self.fc = nn.Linear(
-            in_features*avgpool_size*avgpool_size, out_features)
+        layers = []
+        for out_feature in out_features[:-1]:
+            layers.append(nn.Linear(in_feature, out_feature))
+            layers.append(nn.ReLU())
+            in_feature = out_feature
+        layers.append(nn.Linear(in_feature, out_features[-1]))
+        self.layers = nn.Sequential(*layers)
 
     def forward(self, x):
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
-        x = self.fc(x)
+        x = self.layers(x)
         return x
 
 
@@ -161,9 +164,7 @@ class AttentionMIL(nn.Module):
         super(AttentionMIL, self).__init__()
         self.feature_extractor = backbone
         self.attn = attn_block
-        self.mlp = MLP(avgpool_size=avgpool_size,
-                       in_features=backbone_out_features,
-                       out_features=out_features)
+        self.mlp = MLP(avgpool_size, backbone_out_features, out_features)
         self.with_attn = attn_block is not None
 
     def forward(self, X):
@@ -201,16 +202,11 @@ def build_attn_mil(args, backbone, backbone_out_features):
             attn_features=64,
             backbone_out_features=backbone_out_features,
             avgpool_size=args.avgpool_size_attn)
-    return AttentionMIL(backbone,
-                        attn_block,
-                        args.avgpool_size,
-                        backbone_out_features,
-                        args.out_features)
+    return AttentionMIL(backbone, attn_block, args.avgpool_size,
+                        backbone_out_features, args.out_features)
 
 
 def build_naive_model(args, backbone, backbone_out_features, out_features):
     r"""Naive DNN model builder for image classification"""
-    return Classifier(backbone,
-                      backbone_out_features,
-                      args.avgpool_size,
-                      out_features)
+    return Classifier(backbone, backbone_out_features,
+                      args.avgpool_size, out_features)
