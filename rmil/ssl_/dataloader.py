@@ -40,18 +40,12 @@ def get_ssl_data_loaders(meta_data_path, transform, transform_test,
         meta_data = json.load(f)
     pre_transforms = [
         transforms.Compose([
-            transforms.CenterCrop(crop_size),
-            transforms.Resize((image_size, image_size)),
-            transforms.ToTensor(),
-            transforms.Normalize(
-                mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225]
-            )
+            transforms.Resize((image_size, image_size))
         ]) for image_size in config.IMAGE_SIZES]
-    train_set = SslDataset(meta_data["train"], pre_transforms, transform)
+    train_set = SslDataset(pre_transforms, transform, meta_data["train"])
     train_loader = data.DataLoader(train_set, batch_size=batch_size,
                                    num_workers=num_workers, shuffle=True)
-    val_set = SslDataset(meta_data["val"], pre_transforms, transform_test)
+    val_set = SslDataset(pre_transforms, transform_test, meta_data["val"])
     val_loader = data.DataLoader(val_set, batch_size=batch_size,
                                  num_workers=num_workers, shuffle=False)
     return train_loader, val_loader

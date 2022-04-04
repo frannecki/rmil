@@ -62,7 +62,6 @@ def train_model(args, model, criterion, train_loader, val_loader,
             except StopIteration:
                 train_iters_sub[k] = iter(subtasks[k]['trainloader'])
                 imgs, tgts = next(train_iters_sub[k])
-
             imgs = imgs.to(device)
             tgts = tgts.to(device)
             out = task["model"](imgs)
@@ -101,16 +100,17 @@ def train_model(args, model, criterion, train_loader, val_loader,
         task["model"].eval()
     running_loss_val, correct = 0., 0
     with torch.no_grad():
-        for i, (imgs, targets) in enumerate(val_loader):
+        for i, (images, targets) in enumerate(val_loader):
             images = images.to(device)
-            tgts = targets.to(device)
+            targets = targets.to(device)
             logits = model(images)
-            loss = criterion(logits, tgts)
+            loss = criterion(logits, targets)
+
             preds = predict_staged(logits)
-            correct += torch.sum(preds == tgts).item()
+            correct += torch.sum(preds == targets).item()
             pred_table_val += torch.sum(
                 (preds == classes).unsqueeze(0) &
-                (tgts == classes).unsqueeze(1), dim=2)
+                (targets == classes).unsqueeze(1), dim=2)
             running_loss_val += loss.item() * images.size(0)
 
             for k, (val_iter_sub, task) in enumerate(zip(val_iters_sub,
@@ -118,7 +118,7 @@ def train_model(args, model, criterion, train_loader, val_loader,
                 try:
                     imgs, tgts = next(val_iter_sub)
                 except StopIteration:
-                    train_iters_sub[k] = iter(subtasks[k]['valloader'])
+                    val_iters_sub[k] = iter(subtasks[k]['valloader'])
                     imgs, tgts = next(val_iters_sub[k])
 
                 imgs = imgs.to(device)
@@ -128,7 +128,7 @@ def train_model(args, model, criterion, train_loader, val_loader,
                 loss_total += cur_loss
                 losses_sub[k] = cur_loss.item()
 
-            if (i+1) % args.log_step == 0:
+            if (i + 1) % args.log_step == 0:
                 print(f'Validation\tEpoch: [{epoch+1}/{args.epochs}]\t' +
                       f'Batch:[{i+1}/{len(val_loader)}]\t{loss}\t{losses_sub}')
     running_loss_val /= len(val_loader.dataset)

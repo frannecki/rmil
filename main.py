@@ -13,8 +13,8 @@ if __name__ == '__main__':
 
     dataloaders_aux, dataloaders_ssl = None, None
     if args.aux or args.reg:
-        dataloaders_ssl = get_aux_data(args, transform_train, transform_test)
+        dataloaders_aux = get_aux_data(args, transform_train, transform_test)
     if args.ssl:
-        dataloaders_aux = get_ssl_data(args, transform_train, transform_test)
+        dataloaders_ssl = get_ssl_data(args, transform_train, transform_test)
 
     main(args, dataloaders_mil, dataloaders_aux, dataloaders_ssl)

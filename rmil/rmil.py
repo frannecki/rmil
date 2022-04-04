@@ -93,7 +93,9 @@ def get_options():
                         help='number of batches to show log')
     parser.add_argument('--model_dir', type=str, default='./models/models')
     parser.add_argument('--log_dir', type=str, default='./logs/logs')
-    parser.add_argument('--no-pretrained', dest='pretrained', action='store_false')
+    parser.add_argument('--no-pretrained', dest='pretrained',
+                        action='store_false',
+                        help="Do not use pretrained models")
     parser.add_argument('--aux', action='store_true',
                         help="Train with supervised learning task with"
                         " auxiliary dataset (annotated patches)")
@@ -145,7 +147,7 @@ def get_aux_data(args, transform_train, transform_test):
         meta_data = json.load(f)
     trainloader, valloader = get_labeled_data_loaders(
         meta_data, transform_train, transform_test,
-        args.batch_size, args.num_workers)
+        args.batch_size, args.workers)
     return trainloader, valloader
 
 
@@ -199,15 +201,15 @@ def main(args, dataloaders_mil, dataloaders_aux=None, dataloaders_ssl=None):
                                             backbone_out_features,
                                             args.num_classes)
             model_naive = model_naive.to(device)
-            trainloader_region, valloader_region = dataloaders_aux
+            trainloader_aux, valloader_aux = dataloaders_aux
             criterion_aux = torch.nn.CrossEntropyLoss()
-            print("number of training and testing batches for supervised "
-                  "learning", len(trainloader_region), len(valloader_region))
+            print("Number of training and testing batches for supervised "
+                  "learning", len(trainloader_aux), len(valloader_aux))
             subtasks.append({
                 "task": "aux",
                 "model": model_naive,
-                "trainloader": trainloader_region,
-                "valloader": valloader_region,
+                "trainloader": trainloader_aux,
+                "valloader": valloader_aux,
                 "criterion": criterion_aux
             })
         if dataloaders_ssl:
@@ -216,7 +218,7 @@ def main(args, dataloaders_mil, dataloaders_aux=None, dataloaders_ssl=None):
             model_ssl = model_ssl.to(device)
             trainloader_ssl, valloader_ssl = dataloaders_ssl
             criterion_ssl = torch.nn.CrossEntropyLoss()
-            print("number of training and testing batches for self-supervised "
+            print("Number of training and testing batches for self-supervised "
                   "learning", len(trainloader_ssl), len(valloader_ssl))
             subtasks.append({
                 "task": "ssl",
