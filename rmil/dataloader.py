@@ -126,7 +126,7 @@ class LabeledDataset(data.Dataset):
 
 
 def get_labeled_data_loaders(meta_data, transform, transform_test,
-                             batch_size=8, num_workers=4):
+                             batch_size=8, num_workers=2):
     train_set = LabeledDataset(transform, meta_data["train"])
     train_loader = data.DataLoader(train_set, batch_size=batch_size,
                                    num_workers=num_workers, shuffle=True)

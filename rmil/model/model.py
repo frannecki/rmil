@@ -25,10 +25,10 @@ class Classifier(nn.Module):
                  backbone,
                  backbone_out_features,
                  avgpool_size,
-                 out_features=4):
+                 *out_features):
         super(Classifier, self).__init__()
         self.feature_extractor = backbone
-        self.mlp = MLP(avgpool_size, backbone_out_features, out_features)
+        self.mlp = MLP(avgpool_size, backbone_out_features, *out_features)
 
     def forward(self, x):
         x = self.feature_extractor(x)

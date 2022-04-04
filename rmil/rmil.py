@@ -138,7 +138,7 @@ def get_mil_data(args, transform_train, transform_test):
 def get_ssl_data(args, transform_train, transform_test):
     trainloader, valloader = get_ssl_data_loaders(
         args.split_path_ssl, transform_train, transform_test,
-        args.image_crop_size, batch_size=args.batch_size_ssl)
+        batch_size=args.batch_size_ssl)
     return trainloader, valloader
 
 
@@ -146,8 +146,7 @@ def get_aux_data(args, transform_train, transform_test):
     with open(args.split_path_aux, "r") as f:
         meta_data = json.load(f)
     trainloader, valloader = get_labeled_data_loaders(
-        meta_data, transform_train, transform_test,
-        args.batch_size, args.workers)
+        meta_data, transform_train, transform_test, args.batch_size)
     return trainloader, valloader
 
 

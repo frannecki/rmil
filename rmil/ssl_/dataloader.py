@@ -35,7 +35,7 @@ class SslDataset(LabeledDataset):
 
 
 def get_ssl_data_loaders(meta_data_path, transform, transform_test,
-                         crop_size=96, batch_size=8, num_workers=4):
+                         batch_size=8, num_workers=4):
     with open(meta_data_path, "r") as f:
         meta_data = json.load(f)
     pre_transforms = [
