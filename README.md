@@ -30,11 +30,17 @@ python preprocess/dataset_split_aux.py --data_root_dir=$data_root_dir_aux
 python preprocess/dataset_generation_ssl.py --data_root_dir=$data_root_dir_ssl
 ```
 
+#### domain adversarial training
+```sh
+# The dataset is placed in folder $data_root_dir_da (`data/da` in default)
+python preprocess/dataset_split_da.py --data_root_dir=$data_root_dir_da
+```
+
 ### Training and testing
 Please use `python main.py -h` to view usages.
 ```sh
 # For training
-python main.py --model_dir=models/models --log_dir=logs/logs --attn [--aux --split_path_aux data/train_test_split_aux.json] [--ssl --split_path_ssl data/train_test_split_ssl.json] | tee -a logs/logs.log
+python main.py --model_dir=models/models --log_dir=logs/logs --attn [--aux --split_path_aux data/train_test_split_aux.json] [--ssl --split_path_ssl data/train_test_split_ssl.json] [--da --split_path_da data/train_test_split_da.json] | tee -a logs/logs.log
 
 # For testing, specify `--testonly` to skip training
 python main.py --model_dir=models/models --attn --testonly

@@ -120,6 +120,8 @@ def get_options():
                         help="Use auxiliary dataset with registration")
     parser.add_argument('--ssl', action='store_true',
                         help="Train with self supervised learning task")
+    parser.add_argument('--da', action='store_true',
+                        help="Add domain adversarial learning task")
     parser.add_argument('--testonly', action='store_true')
     return parser.parse_args()
 
