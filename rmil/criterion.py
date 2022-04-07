@@ -36,3 +36,12 @@ class GradedCrossEntropyLoss(nn.Module):
         cross_entropy_loss = self.ce(logits, targets)
         graded_loss = torch.mean((probs - targets) ** 2)
         return 0.1 * cross_entropy_loss + graded_loss
+
+
+class CrossEntropyLoss(nn.CrossEntropyLoss):
+    def __init__(self, weight: float):
+        super(CrossEntropyLoss, self).__init__()
+        self.w = weight # weight
+
+    def forward(self, logits, targets):
+        return self.w * super().forward(logits, targets)

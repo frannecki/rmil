@@ -8,6 +8,8 @@ OUT_FEATURES = 3
 
 # training
 EPOCHS = 100
+LAMBDA_AUX = .5
+LAMBDA_SSL = .2
 
 # evaluation
 METR = "acc"

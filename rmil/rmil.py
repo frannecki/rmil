@@ -13,7 +13,7 @@ from .model import build_naive_model
 
 from .dataloader import get_bag_dataloaders, get_labeled_data_loaders
 from .utils import train_model, evaluate_model
-from .criterion import GradeLoss, GradedCrossEntropyLoss
+from .criterion import GradeLoss, GradedCrossEntropyLoss, CrossEntropyLoss
 
 from .ssl_ import build_ssl_model
 from .ssl_ import get_ssl_data_loaders
@@ -72,6 +72,10 @@ def get_options():
                         help='output feature dimension of network')
     parser.add_argument('--criterion', type=str, default="graded",
                         help='loss function for multiple instance learning')
+    parser.add_argument('--lambda_aux', type=float, default=config.LAMBDA_AUX,
+                        help='loss function weight for supervised learning')
+    parser.add_argument('--lambda_ssl', type=float, default=config.LAMBDA_SSL,
+                        help='loss function weight for self supervised learning')
     parser.add_argument('--attn', action='store_true')
     # pipeline
     parser.add_argument('--trained_epochs', type=int, default=0,
@@ -201,7 +205,7 @@ def main(args, dataloaders_mil, dataloaders_aux=None, dataloaders_ssl=None):
                                             args.num_classes)
             model_naive = model_naive.to(device)
             trainloader_aux, valloader_aux = dataloaders_aux
-            criterion_aux = torch.nn.CrossEntropyLoss()
+            criterion_aux = CrossEntropyLoss(weight=args.lambda_aux)
             print("Number of training and testing batches for supervised "
                   "learning", len(trainloader_aux), len(valloader_aux))
             subtasks.append({
@@ -216,7 +220,7 @@ def main(args, dataloaders_mil, dataloaders_aux=None, dataloaders_ssl=None):
             model_ssl = build_ssl_model(args, backbone, backbone_out_features)
             model_ssl = model_ssl.to(device)
             trainloader_ssl, valloader_ssl = dataloaders_ssl
-            criterion_ssl = torch.nn.CrossEntropyLoss()
+            criterion_ssl = CrossEntropyLoss(weight=args.lambda_ssl)
             print("Number of training and testing batches for self-supervised "
                   "learning", len(trainloader_ssl), len(valloader_ssl))
             subtasks.append({
