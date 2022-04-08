@@ -58,6 +58,7 @@ class ResnetBackbone(nn.Module):
 
 
 class VGGBackbone(nn.Module):
+    r"VGG backbone"
     def __init__(self, pretrained=True):
         super(VGGBackbone, self).__init__()
         vgg = vgg11(pretrained)
@@ -114,12 +115,14 @@ class GatedAttention(nn.Module):
     $\pmb{V}$ are fully connected layer weights of size $L \times M$, and
     $\pmb{w}$ is a one-dimensional vector of size $L$
     """
-    def __init__(self, attn_features,
-                 backbone_out_features, avgpool_size):
+    def __init__(self, attn_features: int,
+                 backbone_out_features: int, avgpool_size: int):
         r"""Gated Attention Module constructor
 
         Args:
             attn_features: query and key dimension for feature vectors $L$
+            backbone_out_features: dimension of output feature vectors
+                from the feature extractor
             avgpool_size: output size of feature map average pooling before
                 feeding into self-attention module
         """
@@ -152,7 +155,7 @@ class AttentionMIL(nn.Module):
     and self-attention module
     """
     def __init__(self, backbone, attn_block, avgpool_size,
-                 backbone_out_features, out_features):
+                 backbone_out_features: int, out_features: int):
         r"""Constructor for multiple-instance learning model
         with gated attention
 
@@ -160,6 +163,9 @@ class AttentionMIL(nn.Module):
             backbone: backbone feature extractor block
             attn_block: attention module
             avgpool_size: output size for average pooling
+            backbone_out_features: dimension of output feature vectors
+                from the feature extractor
+            out_features: dimension of output feature vectors
         """
         super(AttentionMIL, self).__init__()
         self.feature_extractor = backbone

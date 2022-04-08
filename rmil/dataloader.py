@@ -27,13 +27,17 @@ def get_train_data_tiles(split_path: str) -> Tuple[List[Dict]]:
 class MILBagDataset(data.Dataset):
     r"""Bag dataset for multiple-instance learning
     """
-    def __init__(self, data_root_dir, slides,
+    def __init__(self, data_root_dir, slides: List[Dict],
                  topk, transform, cat=False):
         r"""Constructor for MILBagDataset
 
         Args:
             data_root_dir: the path of the images of train/val/test datasets
-            slides: metadata of the whole slide images for training
+            slides: metadata of the whole slide images (WSI),
+                each element being a dict with two keys: "id" and "label" 
+            topk: number of patches selected from each WSI
+            transform: transformation to perform upon RGB images into tensors
+            cat: whether to cat or stack the selected patches
         """
         super(MILBagDataset, self).__init__()
         self.cat, self.topk, self.transform = cat, topk, transform

@@ -14,6 +14,10 @@ def dataset_split(train_labels_csv: str) -> Dict:
 
     Args:
         train_labels_csv:   filepath of train metadata csv
+    Return:
+        dict holding slide lists for training, validation
+        and testing respectively, with each element holding
+        "id" (slide name) and "label" (category) as keys
     """
     df = pd.read_csv(train_labels_csv)
     filenames = df["filename"].values

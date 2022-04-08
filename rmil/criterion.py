@@ -41,7 +41,7 @@ class GradedCrossEntropyLoss(nn.Module):
 class CrossEntropyLoss(nn.CrossEntropyLoss):
     def __init__(self, weight: float):
         super(CrossEntropyLoss, self).__init__()
-        self.w = weight # weight
+        self.w = weight  # weight
 
     def forward(self, logits, targets):
         return self.w * super().forward(logits, targets)
