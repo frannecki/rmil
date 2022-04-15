@@ -205,7 +205,7 @@ def build_attn_mil(args, backbone, backbone_out_features):
     attn_block = None
     if args.attn:
         attn_block = GatedAttention(
-            attn_features=64,
+            attn_features=args.attn_features,
             backbone_out_features=backbone_out_features,
             avgpool_size=args.avgpool_size_attn)
     return AttentionMIL(backbone, attn_block, args.avgpool_size,

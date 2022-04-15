@@ -76,6 +76,8 @@ def get_options():
                         help='loss function weight for supervised learning')
     parser.add_argument('--lambda_ssl', type=float, default=config.LAMBDA_SSL,
                         help='loss function weight for self supervised learning')
+    parser.add_argument('--attn_features', type=int,
+                        default=config.ATTN_FEATURES)
     parser.add_argument('--attn', action='store_true')
     # pipeline
     parser.add_argument('--trained_epochs', type=int, default=0,
